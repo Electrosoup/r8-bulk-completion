@@ -26,7 +26,11 @@ export default (state = testData, action) => {
           :
           {}
         }
-
+    case types.TOGGLE_DIALOG:
+        return {
+          ...state,
+          showDialog: ! state.showDialog,
+        }
     case types.TOGGLE_UNIT:
       return {
         ...state,
@@ -70,8 +74,8 @@ const calculateUnitsSelected = (criteria) => criteria.groups
 
 const calculateCreditScore = (criteria) => criteria.groups
   .map(group => group.units
-  .filter(unit => unit.selected)
-  .map(unit => unit.credit))
+    .filter(unit => unit.selected)
+    .map(unit => unit.credit))
   .map(group => group
   .reduce((result, item) => result + item),0)
   .reduce((result, value) => result + value, 0)
@@ -128,14 +132,5 @@ export const getQualification = (state) => {
         :
         state.candidatesSelected[item.id]}))
 
-  const units = qualification.units.map(
-    item => 
-    ({...state.units[item],
-      selected: state.unitsSelected[item] === undefined
-      ? 
-      false 
-      :
-      state.unitsSelected[item]}))
-
-  return {...qualification, candidates, units}
+  return {...qualification, candidates}
 }

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 export const App = (props) => {
   return (
+    <div>
     <bs.Grid>
       <bs.Row>
         <QualDropdown
@@ -13,7 +14,13 @@ export const App = (props) => {
       </bs.Row>
       <br/>
       <bs.Row>
-        <bs.Button>Bulk Complete</bs.Button>
+        <bs.Button
+          disabled={
+            !(props.qualificationIsCompletable
+              && props.someCandidatesSelected)}
+          onClick={_e => props.toggleDialog()} >
+          Bulk Complete
+        </bs.Button>
       </bs.Row>
       <br/>
       <bs.Row>
@@ -25,6 +32,8 @@ export const App = (props) => {
         </bs.Col>
       </bs.Row>
     </bs.Grid>
+    <ModalComplete {...props} />
+    </div>
   )
 }
 
@@ -101,6 +110,7 @@ export const Criterias = (props) =>
       <bs.Panel key={criteria.id} bsStyle={criteria.completable ? 'success' : undefined} header={criteria.text}>
       {criteria.groups.map(group => 
       <div key={group.id}>
+      <h5>Min Score: {criteria.minimumScore}</h5>
       <h5>{group.title}</h5>
       <bs.Table striped bordered condensed hover>
         <thead>
@@ -138,6 +148,27 @@ export const Criterias = (props) =>
       )}
     </bs.Panel>)}
     </div>
+
+export const ModalComplete = (props) =>
+    <bs.Modal show={props.showDialog} onHide={_e => props.toggleDialog()}>
+      <bs.Modal.Header closeButton>
+            <bs.Modal.Title>{props.qualification.title}</bs.Modal.Title>
+      </bs.Modal.Header>
+      <bs.ModalBody>
+      <h5>Units to complete:</h5>
+      <ul>
+        {props.selectedUnitTitles.map(item => <li>{item}</li>)}
+      </ul>
+      <h5>Candidates to complete</h5>
+      <ul>
+        {props.selectedCandidates.map(item => <li>{item.surname}, {item.firstName}</li>)}
+      </ul>
+      </bs.ModalBody>
+      <bs.ModalFooter>
+        <bs.Button>Confirm bulk completion</bs.Button>
+      </bs.ModalFooter>
+
+    </bs.Modal>
 
     
 App.propTypes = {

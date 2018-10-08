@@ -22,3 +22,7 @@ export const toggleAllCandidates = () => ({
 export const toggleAllUnits = () => ({
   type: types.TOGGLE_ALL_UNITS,
 })
+
+export const toggleDialog = () => ({
+  type: types.TOGGLE_DIALOG
+})

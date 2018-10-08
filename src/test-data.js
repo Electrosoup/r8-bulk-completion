@@ -8,21 +8,18 @@ const testData = {
     '12345': {
       'id': '12345',
       'title': 'A Qualification',
-      'units': [4, 1, 2],
       'candidates':[1, 2, 3],
       'completionCriteria': 1,
     },
     '99999': {
       'id': '99999',
       'title': 'Another Qualification',
-      'units': [4, 5, 1, 2, 3],
       'candidates':[2, 3],
       'completionCriteria': 2,
     },
     '66666': {
       'id': '66666',
       'title': 'Empty Qualification',
-      'units': [4, 5],
       'candidates':[],
       'completionCriteria': 4,
     }
@@ -88,7 +85,7 @@ const testData = {
       id:1,
       criteria: 'COMPLETE_ON_UNITS',
       groups: [1],
-      minimumScore: 3,
+      minimumScore: 1,
       qualId: '12345',
       text: 'Optional',
       type: 'OPTIONAL'},
@@ -104,7 +101,7 @@ const testData = {
       id:3,
       criteria: 'COMPLETE_ON_UNITS',
       groups: [3, 4],
-      minimumScore: 1,
+      minimumScore: 2,
       qualId: '99999',
       text: 'Optional',
       type: 'OPTIONAL'},
@@ -112,7 +109,7 @@ const testData = {
       id: 4,
       criteria: 'COMPLETE_ON_UNITS',
       groups: [5],
-      minimumScore: 0,
+      minimumScore: 1,
       qualId: '66666',
       text: 'Optional',
       type: 'OPTIONAL'
@@ -137,7 +134,7 @@ const testData = {
       id:3,
       qualId: '99999',
       title: 'Group 3 title...',
-      units: ['3']},
+      units: ['2']},
     4: {
       id:4,
       qualId: '99999',
@@ -156,6 +153,7 @@ const testData = {
   candidatesSelected:{},
   allUnitsSelected: false,
   allCandidatesSelected: false,
+  showDialog: false,
 }
 
 export default testData
