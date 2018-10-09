@@ -14,6 +14,10 @@ export const App = (props) => {
       </bs.Row>
       <br/>
       <bs.Row>
+        <bs.Col xs={6} md={4}>
+        <Candidates {...props}/>
+        </bs.Col>
+        <bs.Col xs={12} md={8}>
         <bs.Button
           disabled={
             !(props.qualificationIsCompletable
@@ -21,13 +25,8 @@ export const App = (props) => {
           onClick={_e => props.toggleDialog()} >
           Bulk Complete
         </bs.Button>
-      </bs.Row>
-      <br/>
-      <bs.Row>
-        <bs.Col xs={6} md={4}>
-        <Candidates {...props}/>
-        </bs.Col>
-        <bs.Col xs={12} md={8}>
+        <br/>
+        <br/>
         <Criterias {...props} />
         </bs.Col>
       </bs.Row>
