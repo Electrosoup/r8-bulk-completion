@@ -1,6 +1,3 @@
-const MANDITORY = 'MANDITORY'
-const OPTIONAL = 'OPTIONAL'
-const COMPLETE_ON_CREDITS = 'COMPLETE_ON_CREDITS'
 
 const testData = {
   currentQualification: '99999',
