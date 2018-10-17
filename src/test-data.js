@@ -1,4 +1,5 @@
 
+
 const testData = {
   currentQualification: '99999',
   qualifications: {
@@ -151,6 +152,9 @@ const testData = {
   allUnitsSelected: false,
   allCandidatesSelected: false,
   showDialog: false,
+  bulkCompleteProcessing: false,
+  visibleCandidates:{},
+  term: '',
 }
 
 export default testData

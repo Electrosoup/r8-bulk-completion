@@ -2,39 +2,79 @@ import React from 'react';
 import '../App.css';
 import * as bs from 'react-bootstrap/lib/'
 import PropTypes from 'prop-types';
+import {DebounceInput} from 'react-debounce-input';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+import { faSun, faCheck } from '@fortawesome/free-solid-svg-icons'
 
-export const App = (props) => {
+library.add(fab, faSun, faCheck)
+
+class App extends React.Component {
+
+  componentWillMount() {
+    this.props.getServerData(this.props.source)
+  }
+
+  render () {
   return (
-    <div>
-    <bs.Grid>
-      <bs.Row>
-        <QualDropdown
-            qualifications={props.qualifications}
-            onChange={props.selectQualification} />
-      </bs.Row>
-      <br/>
-      <bs.Row>
-        <bs.Col xs={6} md={4}>
-        <Candidates {...props}/>
-        </bs.Col>
-        <bs.Col xs={12} md={8}>
-        <bs.Button
-          disabled={
-            !(props.qualificationIsCompletable
-              && props.someCandidatesSelected)}
-          onClick={_e => props.toggleDialog()} >
-          Bulk Complete
-        </bs.Button>
+    Object.keys(this.props.qualification).length
+      ?
+      <div>
+      <bs.Grid>
+        <bs.Row>
+          <QualDropdown
+              qualifications={this.props.qualifications}
+              onChange={this.props.selectQualification} />
+        </bs.Row>
         <br/>
-        <br/>
-        <Criterias {...props} />
-        </bs.Col>
-      </bs.Row>
-    </bs.Grid>
-    <ModalComplete {...props} />
-    </div>
-  )
+        <bs.Row>
+          <bs.Col xs={6} md={4}>
+          <DebounceInput
+            className="form-control"
+            placeholder="search candidates"
+            minLength={2}
+            debounceTimeout={300}
+            onChange={event => this.props.searchCandidates(event.target.value)} />
+  
+          <br/>
+          <Candidates {...this.props}/>
+          </bs.Col>
+          <bs.Col xs={12} md={8}>
+          <bs.Button
+            disabled={
+              !(this.props.qualificationIsCompletable
+                && this.props.someCandidatesSelected)}
+            onClick={_e => this.props.toggleDialog()} >
+            Bulk Complete
+          </bs.Button>
+          <br/>
+          <br/>
+          <Criterias {...this.props} />
+          </bs.Col>
+        </bs.Row>
+      </bs.Grid>
+      <ModalComplete {...this.props} />
+      </div>
+      :
+      <bs.Col xs={6} mdOffset={3} xsOffset={2}>
+      <bs.Alert bsStyle="warning">
+        <center>
+        <strong>
+          <FontAwesomeIcon icon="check" size="lg" color="green"/>{' '}All qualifications have been completed for candidates.</strong>
+        </center>
+      </bs.Alert>
+      </bs.Col>
+              
+  )}
 }
+
+const filterVisibleCandidates = (candidates, visibleCandidates, term) => 
+  Object.keys(visibleCandidates).length
+  ?
+  candidates.filter(candidate => visibleCandidates[candidate.id] ? true : false)
+  :
+  term.length ? [] : candidates
 
 export const QualDropdown = (props) => 
   <div>
@@ -64,6 +104,9 @@ export const Candidates = (props) =>
             onClick={(e) => props.toggleAllCandidates()} />
         </th>
         <th>
+          Id
+        </th>
+        <th>
           Surname
         </th>
         <th>
@@ -72,7 +115,10 @@ export const Candidates = (props) =>
       </tr>
     </thead>
     <tbody className='candidates-list'>
-      {props.qualification.candidates.map(
+      {filterVisibleCandidates(
+        props.qualification.candidates,
+        props.visibleCandidates,
+        props.term).map(
           candidate =>
             <tr key={candidate.id}>
               <td>
@@ -81,6 +127,9 @@ export const Candidates = (props) =>
                   style={{marginTop:'0px', marginBottom:'0px'}}
                   checked={candidate.selected} 
                   onClick={(e) => props.toggleCandidate(candidate.id)} />
+              </td>
+              <td>
+                {candidate.id}
               </td>
               <td>
                 {candidate.surname}
@@ -105,12 +154,21 @@ const typeOfBadge = (option) =>
 
 export const Criterias = (props) =>
   <div>
+    
     {props.criteria.map(criteria => 
-      <bs.Panel key={criteria.id} bsStyle={criteria.completable ? 'success' : undefined} header={criteria.text}>
+      <bs.Panel
+        bsStyle={criteria.completable
+        ?
+        'success'
+        : 
+        undefined}
+        header={criteria.text}>
       {criteria.groups.map(group => 
       <div key={group.id}>
-      <h5>Min Score: {criteria.minimumScore}</h5>
-      <h5>{group.title}</h5>
+      {criteria.type === 'MANDATORY'
+        ? '' 
+        : <h5>Minimum Score: {criteria.minimumScore}</h5>}
+
       <bs.Table striped bordered condensed hover>
         <thead>
           <tr>
@@ -124,6 +182,12 @@ export const Criterias = (props) =>
             <th>
               title
             </th>
+            {criteria.type !== 'MANDATORY' && criteria.criteria === 'COMPLETE_ON_CREDITS' 
+            ? 
+            <th style={{ width: '10px', 'textAlign': 'center'}}>Credit</th>
+            :
+            ''
+            }
           </tr>
         </thead>
         <tbody>
@@ -139,6 +203,13 @@ export const Criterias = (props) =>
             <td style={{ width: '10px' }}>{typeOfBadge(criteria.type)}</td>
             <td style={{ width: '100px' }}>{unit.id}</td>
             <td style={{ width: '350px' }}>{unit.title}</td>
+            {criteria.type !== 'MANDATORY' && criteria.criteria === 'COMPLETE_ON_CREDITS' 
+            ? 
+            <td style={{ width: '10px', 'textAlign': 'center'}}>{unit.credit}</td>
+            :
+            ''
+            }
+
           </tr>
           )}
         </tbody>
@@ -148,7 +219,9 @@ export const Criterias = (props) =>
     </bs.Panel>)}
     </div>
 
-export const ModalComplete = (props) =>
+export const ModalComplete = (props) => {
+  console.log()
+  return(
     <bs.Modal show={props.showDialog} onHide={_e => props.toggleDialog()}>
       <bs.Modal.Header closeButton>
             <bs.Modal.Title>{props.qualification.title}</bs.Modal.Title>
@@ -156,18 +229,31 @@ export const ModalComplete = (props) =>
       <bs.ModalBody>
       <h5>Units to complete:</h5>
       <ul>
-        {props.selectedUnitTitles.map(item => <li>{item}</li>)}
+        {props.selectedUnitTitles.map(item => <li key={item.id}>{item.title}</li>)}
       </ul>
       <h5>Candidates to complete</h5>
       <ul>
-        {props.selectedCandidates.map(item => <li>{item.surname}, {item.firstName}</li>)}
+        {props.selectedCandidates.map(item => <li key={item.id}>{item.surname}, {item.firstName}</li>)}
       </ul>
       </bs.ModalBody>
       <bs.ModalFooter>
-        <bs.Button>Confirm bulk completion</bs.Button>
+        <bs.Button
+          disabled={props.bulkCompleteProcessingStatus} 
+          onClick={_e => {
+          props.bulkCompleteProcessing()
+          props.bulkComplete(props)}
+        }>
+        Confirm bulk completion
+        {' '}
+        {props.bulkCompleteProcessingStatus
+        ? 
+        <FontAwesomeIcon icon="sun" spin size="lg" color="red"/>
+        :
+        <FontAwesomeIcon icon="sun" size="lg" />
+        }
+        </bs.Button>
       </bs.ModalFooter>
-
-    </bs.Modal>
+  </bs.Modal>)}
 
     
 App.propTypes = {
@@ -190,6 +276,7 @@ App.propTypes = {
       surname: PropTypes.string,
       qualifications: PropTypes.arrayOf(PropTypes.string),
       selected: PropTypes.bool,
+      visible: PropTypes.bool,
     }))
   }),
   qualifications: PropTypes.arrayOf(

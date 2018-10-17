@@ -9,6 +9,7 @@ const Container = (props) =>
     <App {...props}/>
 
 const mapStateToProps = (state, _ownProps) => ({
+  bulkCompleteProcessingStatus: state.defaultReducer.bulkCompleteProcessing,
   qualification: getQualification(state.defaultReducer),
   criteria: getCriteria(state.defaultReducer),
   qualifications: getQualifications(state.defaultReducer.qualifications),
@@ -17,10 +18,15 @@ const mapStateToProps = (state, _ownProps) => ({
   allUnitsSelected: state.defaultReducer.allUnitsSelected,
   qualificationIsCompletable: qualificationCompleteable(getCriteria(state.defaultReducer)),
   showDialog: state.defaultReducer.showDialog,
+  visibleCandidates: state.defaultReducer.visibleCandidates,
+  term: state.defaultReducer.term,
   selectedUnitTitles: Object.entries(
     state.defaultReducer.unitsSelected)
     .filter(item => item[1] === true)
-    .map(unit => state.defaultReducer.units[unit[0]].title),
+    .map(unit => ({
+      id: state.defaultReducer.units[unit[0]].id, 
+      title: state.defaultReducer.units[unit[0]].title })),
+  selectedUnits: state.defaultReducer.unitsSelected,
   selectedCandidates: Object.entries(
     state.defaultReducer.candidatesSelected)
     .filter(item => item[1] === true)

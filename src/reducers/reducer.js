@@ -1,9 +1,42 @@
 import * as types from '../actions/action-types'
+import FuzzySearch from 'fuzzy-search';
 
-import testData from '../test-data'
+const initialData = {
+  currentQualification: 'xxxxx',
+  qualifications: {
+    xxxxx: {
+      candidates:[]
+    }
+  },
+  units: {},
+  candidates:{},
+  criteria: {},
+  groups: {},
+  qualCriteria: {xxxxx:[]},
+  unitsSelected:{},
+  candidatesSelected:{},
+  allUnitsSelected: false,
+  allCandidatesSelected: false,
+  showDialog: false,
+  bulkCompleteProcessing: false,
+  visibleCandidates:{},
+  term: '',
+}
 
-export default (state = testData, action) => {
+export default (state = initialData, action) => {
   switch (action.type) {
+
+    case types.SEARCH_CANDIDATES:
+    const searcher = new FuzzySearch(Object.entries(state.candidates).map(item => item[1]), ['surname', 'firstName'], {
+        caseSensitive: false,
+      });
+      const searchResult = searcher.search(action.term)
+      return {
+        ...state,
+        term: action.term,
+        visibleCandidates: searchResult.reduce(
+          (result, item) => ({...result, [item.id]: true}), {})}
+
     case types.SELECT_QUALIFICATION:
         return {
           ...state,
@@ -26,11 +59,40 @@ export default (state = testData, action) => {
           :
           {}
         }
+
     case types.TOGGLE_DIALOG:
         return {
           ...state,
           showDialog: ! state.showDialog,
         }
+
+    case types.BULK_COMPLETE_PROCESSING:
+        return {
+          ...state,
+          bulkCompleteProcessing: true,
+        }
+
+    case types.GET_SERVER_DATA:
+        let currentQualification = Object.keys(action.payload.qualifications).length
+        ?
+        Object.keys(action.payload.qualifications)[0]
+        :
+        undefined
+        let serverState = {
+          ...state,
+          ...action.payload,
+          currentQualification,
+          showDialog: false,
+          bulkCompleteProcessing: false,
+          unitsSelected:{},
+          candidatesSelected:{},
+          allCandidatesSelected: false,
+          allUnitsSelected: false,
+          term:'',
+          initializing: false
+        }
+        return serverState
+
     case types.TOGGLE_UNIT:
       return {
         ...state,
@@ -38,6 +100,7 @@ export default (state = testData, action) => {
         unitsSelected: {
           ...state.unitsSelected,
           [action.id]: ! state.unitsSelected[action.id]}}
+
     case types.TOGGLE_CANDIDATE:
         return {
           ...state,
@@ -73,12 +136,10 @@ const calculateUnitsSelected = (criteria) => criteria.groups
   .reduce((result, item) => result + item.length, 0)
 
 const calculateCreditScore = (criteria) => criteria.groups
-  .map(group => group.units
-    .filter(unit => unit.selected)
-    .map(unit => unit.credit))
-  .map(group => group
-  .reduce((result, item) => result + item),0)
-  .reduce((result, value) => result + value, 0)
+.map(group => group.units
+  .filter(unit => unit.selected)
+  .reduce((result, item) => result + item.credit, 0))
+.reduce((result, item) => result + item, 0)
 
 export const getQualifications = (state) => Object.entries(state).map(item => item[1])
 
@@ -94,6 +155,7 @@ export const criteriaScore = (criteria) => {
 }
 
 export const getCriteria = (state) => {
+  if (state.currentQualification) {
   const criteria = state.qualCriteria[state.currentQualification].map(
     item => ({
     ...state.criteria[item],
@@ -115,9 +177,12 @@ export const getCriteria = (state) => {
       .sort((a, b) => a.type > b.type)
     return criteria.map(
       item => ({...item, completable: criteriaCompletable(item)}))
+    }
+    return []
 }
 
 export const getQualification = (state) => {
+  if (state.currentQualification) {
   const qualification = state.qualifications[state.currentQualification]
    const candidates = qualification.candidates.map(
     item =>
@@ -130,7 +195,8 @@ export const getQualification = (state) => {
         ?
         false 
         :
-        state.candidatesSelected[item.id]}))
-
-  return {...qualification, candidates}
+        state.candidatesSelected[item.id],
+        visible: true}))
+    return {...qualification, candidates}}
+  return {}
 }
