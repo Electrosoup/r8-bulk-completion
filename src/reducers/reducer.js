@@ -5,6 +5,7 @@ const initialData = {
   currentQualification: 'xxxxx',
   qualifications: {
     xxxxx: {
+      id:'xxxxxx',
       candidates:[]
     }
   },
@@ -21,6 +22,7 @@ const initialData = {
   bulkCompleteProcessing: false,
   visibleCandidates:{},
   term: '',
+  toggleSortSurnames: false,
 }
 
 export default (state = initialData, action) => {
@@ -64,6 +66,12 @@ export default (state = initialData, action) => {
         return {
           ...state,
           showDialog: ! state.showDialog,
+        }
+
+    case types.TOGGLE_SORT_SURNAMES:
+        return {
+          ...state,
+          toggleSortSurnames: !state.toggleSortSurnames,
         }
 
     case types.BULK_COMPLETE_PROCESSING:
@@ -187,7 +195,6 @@ export const getQualification = (state) => {
    const candidates = qualification.candidates.map(
     item =>
     state.candidates[item])
-    .sort((a, b) => a.surname.toLowerCase() >= b.surname.toLowerCase())
     .map(
       item =>
       ({...state.candidates[item.id],
@@ -197,6 +204,11 @@ export const getQualification = (state) => {
         :
         state.candidatesSelected[item.id],
         visible: true}))
-    return {...qualification, candidates}}
+    return {...qualification, candidates:
+      candidates.sort((a, b) => !state.toggleSortSurnames
+      ?
+      a.surname.toLowerCase() >= b.surname.toLowerCase()
+      :
+      a.surname.toLowerCase() <= b.surname.toLowerCase())}}
   return {}
 }

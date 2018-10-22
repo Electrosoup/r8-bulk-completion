@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import * as types from './action-types'
 import * as utils from '../utils'
 export const selectQualification = (id) => ({
@@ -35,6 +36,10 @@ export const bulkCompleteProcessing = () => ({
 const _getServerData = (payload) => ({
   type: types.GET_SERVER_DATA,
   payload
+})
+
+export const toggleSortSurnames = () => ({
+  type: types.TOGGLE_SORT_SURNAMES
 })
 
 export const bulkComplete = (props) => 

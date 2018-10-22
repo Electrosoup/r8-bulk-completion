@@ -9,17 +9,26 @@ import { Provider } from 'react-redux'
 import testData from '../test-data'
 import Adapter from 'enzyme-adapter-react-16'
 import { mount, shallow } from 'enzyme'
+import jestFetchMock from 'jest-fetch-mock'
 import { criteriaScore, qualificationCompleteable, criteriaCompletable } from '../reducers/reducer'
+import * as utils from '../utils'
+import { ModalComplete } from '../components/App'
+
+global.fetch = jestFetchMock
+
+utils.getCentre = jest.fn(() => '12345')
+utils.getQualification = jest.fn(() => '12345')
 
 Enzyme.configure({ adapter: new Adapter() })
 
 it('renders without crashing', () => {
+  fetch.mockResponse(JSON.stringify(testData))
   const div = document.createElement('div');
   const store = configureStore()
   ReactDOM.render(
     <Provider store={store}>
       <App />
-    </Provider>, div);
+    </Provider>, div)
 })
 
 it('sets selected qualification', () => {
@@ -35,6 +44,14 @@ it('lists candidates on a selected qualifiaction', () => {
   component.find('select').simulate('change', {target: {value:'99999'}})
   expect(component.find('.candidates-list').children().length).toEqual(2)
 })
+
+it('sorts candidates', () => {
+  const store = configureStore({'defaultReducer':testData})
+  const component = mount(<AppContainer store={store} />)
+  component.find('#sortSurname').first().simulate('click', {target: {value:false}})
+  expect(component.find('.candidates-list').children().length).toEqual(2)
+})
+
 
 it('chooses a qualification with no candidates', () => {
   const store = configureStore({'defaultReducer':testData})
@@ -59,7 +76,6 @@ it('selects a unit', () => {
   let checkbox = () => component.find('.unitSelected').first().find('input')
   checkbox().simulate('click', {target: {checked: true}});
   let qualification = getQualification(store.getState().defaultReducer)
-  console.log(store.getState().defaultReducer)
 })
 
 it('toggles all candidates', () => {
@@ -73,18 +89,6 @@ it('toggles all candidates', () => {
   let qualificationTogFalse = getQualification(store.getState().defaultReducer)
   expect(qualificationTogFalse.candidates.filter(item => item.selected).length).toEqual(0)
 })
-
-// it('toggles all units', () => {
-//   const store = configureStore({'defaultReducer':testData})
-//   const component = mount(<AppContainer store={store} />)
-//   let checkbox = () => component.find('#toggleAllUnits').find('input')
-//   checkbox().simulate('click', {target: {checked: true}});
-//   let qualificationTogTrue = getQualification(store.getState().defaultReducer)
-//   expect(qualificationTogTrue.units.filter(item => item.selected).length).toEqual(5)
-//   checkbox().simulate('click', {target: {checked: false}});
-//   let qualificationTogFalse = getQualification(store.getState().defaultReducer)
-//   expect(qualificationTogFalse.units.filter(item => item.selected).length).toEqual(0)
-// })
 
 it('tests number of credits completed', () => {
 
@@ -330,6 +334,28 @@ it('test qualification is completable', () => {
   expect(qualificationCompleteable(criterias)).toBeTruthy()
 })
 
+it('tests units selected', () => {
+  const store = configureStore(
+    {'defaultReducer':{
+      ...testData,
+      unitsSelected: {
+        '1': true,
+        '2': false}
+    }})
+  const component = mount(<AppContainer store={store} />)
+})
+
+it('tests candidates selected', () => {
+  const store = configureStore(
+    {'defaultReducer':{
+      ...testData,
+      candidatesSelected: {
+        '1': true,
+        '2': false}
+    }})
+  const component = mount(<AppContainer store={store} />)
+})
+
 it('test qualification is not completable', () => {
 
   var criterias = [
@@ -365,5 +391,11 @@ it('test qualification is not completable', () => {
   expect(qualificationCompleteable(criterias)).toBeFalsy()
 })
 
-
-
+it('test filtering visible candidates', () => {
+  const store = configureStore(
+    {'defaultReducer':{
+      ...testData,
+      visibleCandidates: {'1':'1'}
+    }})
+  const component = mount(<AppContainer store={store} />)
+})

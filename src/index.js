@@ -10,7 +10,7 @@ const store = configureStore();
 
 ReactDOM.render(
   <Provider store={store}>
-    <App source={'http://127.0.0.1:6543/qualification/bulk_complete.json'}/>
+    <App source={'/qualification/bulk_complete.json'}/>
   </Provider>,
   document.getElementById("root")
 );

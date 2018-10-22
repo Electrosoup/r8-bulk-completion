@@ -6,9 +6,9 @@ import {DebounceInput} from 'react-debounce-input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
-import { faSun, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faSun, faCheck, faSort } from '@fortawesome/free-solid-svg-icons'
 
-library.add(fab, faSun, faCheck)
+library.add(fab, faSun, faCheck, faSort)
 
 class App extends React.Component {
 
@@ -35,8 +35,7 @@ class App extends React.Component {
             placeholder="search candidates"
             minLength={2}
             debounceTimeout={300}
-            onChange={event => this.props.searchCandidates(event.target.value)} />
-  
+            onChange={event =>  this.props.searchCandidates(event.target.value)} />
           <br/>
           <Candidates {...this.props}/>
           </bs.Col>
@@ -78,15 +77,15 @@ const filterVisibleCandidates = (candidates, visibleCandidates, term) =>
 
 export const QualDropdown = (props) => 
   <div>
-  <bs.FormControl
-    id="qualification-dropdown"
-    componentClass="select"
-    onChange={(e) => props.onChange(e.target.value)}>
-      {props.qualifications.map(item =>
-        <option key={item.id} value={item.id}>
-          {item.title}
-        </option>
-      )}
+    <bs.FormControl
+      id="qualification-dropdown"
+      componentClass="select"
+      onChange={(e) => props.onChange(e.target.value)}>
+        {props.qualifications.map(item =>
+          <option key={item.id} value={item.id}>
+            {item.title}
+          </option>
+          )}
     </bs.FormControl>
   </div>
 
@@ -107,7 +106,8 @@ export const Candidates = (props) =>
           Id
         </th>
         <th>
-          Surname
+          Surname{' '}
+          <FontAwesomeIcon icon="sort" id="sortSurname" style={{cursor: 'pointer'}} onClick={e => props.toggleSortSurnames()}/>
         </th>
         <th>
           Firstname
@@ -154,9 +154,9 @@ const typeOfBadge = (option) =>
 
 export const Criterias = (props) =>
   <div>
-    
     {props.criteria.map(criteria => 
       <bs.Panel
+        key={criteria.id.toString()}
         bsStyle={criteria.completable
         ?
         'success'
@@ -164,30 +164,22 @@ export const Criterias = (props) =>
         undefined}
         header={criteria.text}>
       {criteria.groups.map(group => 
-      <div key={group.id}>
+      <div key={`${group.qualId}-${criteria.id}`}>
       {criteria.type === 'MANDATORY'
-        ? '' 
+        ? null 
         : <h5>Minimum Score: {criteria.minimumScore}</h5>}
-
       <bs.Table striped bordered condensed hover>
         <thead>
-          <tr>
-          <th>
-          </th>
-          <th>
-          </th>
-            <th>
-              id
-            </th>
-            <th>
-              title
-            </th>
-            {criteria.type !== 'MANDATORY' && criteria.criteria === 'COMPLETE_ON_CREDITS' 
-            ? 
+        <tr>
+          <th></th>
+          <th></th>
+          <th>Id</th>
+            <th>Title</th>
+            {criteria.type !== 'MANDATORY' && criteria.criteria === 'COMPLETE_ON_CREDITS'
+            ?
             <th style={{ width: '10px', 'textAlign': 'center'}}>Credit</th>
             :
-            ''
-            }
+            null}
           </tr>
         </thead>
         <tbody>
@@ -197,6 +189,7 @@ export const Criterias = (props) =>
               <bs.Checkbox
                 className="unitSelected"
                 checked={unit.selected}
+                /* istanbul ignore next */
                 onChange={_e => {props.toggleUnit(unit.id)}}
               />
             </td>
@@ -207,9 +200,8 @@ export const Criterias = (props) =>
             ? 
             <td style={{ width: '10px', 'textAlign': 'center'}}>{unit.credit}</td>
             :
-            ''
+            null
             }
-
           </tr>
           )}
         </tbody>
@@ -220,7 +212,6 @@ export const Criterias = (props) =>
     </div>
 
 export const ModalComplete = (props) => {
-  console.log()
   return(
     <bs.Modal show={props.showDialog} onHide={_e => props.toggleDialog()}>
       <bs.Modal.Header closeButton>
@@ -240,7 +231,9 @@ export const ModalComplete = (props) => {
         <bs.Button
           disabled={props.bulkCompleteProcessingStatus} 
           onClick={_e => {
+          /* istanbul ignore next */
           props.bulkCompleteProcessing()
+          /* istanbul ignore next */
           props.bulkComplete(props)}
         }>
         Confirm bulk completion
@@ -271,7 +264,7 @@ App.propTypes = {
       })
     ),
     candidates: PropTypes.arrayOf(PropTypes.exact({
-      id: PropTypes.number,
+      id: PropTypes.string,
       firstName: PropTypes.string,
       surname: PropTypes.string,
       qualifications: PropTypes.arrayOf(PropTypes.string),
@@ -285,7 +278,7 @@ App.propTypes = {
       title: PropTypes.string,
       units: PropTypes.arrayOf(PropTypes.number),
       completionCriteria: PropTypes.number,
-      candidates: PropTypes.arrayOf(PropTypes.number)}))
+      candidates: PropTypes.arrayOf(PropTypes.string)}))
 }
 
 export default App;

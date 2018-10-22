@@ -6,13 +6,13 @@ const testData = {
     '12345': {
       'id': '12345',
       'title': 'A Qualification',
-      'candidates':[1, 2, 3],
+      'candidates':['1','2','3'],
       'completionCriteria': 1,
     },
     '99999': {
       'id': '99999',
       'title': 'Another Qualification',
-      'candidates':[2, 3],
+      'candidates':['2', '3'],
       'completionCriteria': 2,
     },
     '66666': {
@@ -51,20 +51,20 @@ const testData = {
   },
 
   candidates:{
-    1: {
-      id:1,
+    '1': {
+      id:'1',
       firstName: 'Simon',
       surname: 'Oram',
       qualifications: ['12345', '99999'],
     },
-    2: {
-      id:2,
+    '2': {
+      id:'2',
       firstName: 'Fred',
       surname: 'Smith',
       qualifications: ['12345', '99999'],
     },
-    3: {
-      id: 3,
+    '3': {
+      id: '3',
       firstName: 'Santa',
       surname: 'Claus',
       qualifications: ['12345'],
@@ -135,7 +135,7 @@ const testData = {
       units: ['2']},
     4: {
       id:4,
-      qualId: '99999',
+      qualId: '66666',
       title: 'Group 4 title...',
       units: ['4', '5']},
     5: {
@@ -155,6 +155,7 @@ const testData = {
   bulkCompleteProcessing: false,
   visibleCandidates:{},
   term: '',
+  toggleSortSurnames: false,
 }
 
 export default testData
