@@ -230,7 +230,6 @@ it('optional criteria units isnt completable ', () => {
 
 
 it('optional criteria credits is completable ', () => {
-
   var criteria = {
     criteria: "COMPLETE_ON_CREDITS",
     groups:[
@@ -247,9 +246,7 @@ it('optional criteria credits is completable ', () => {
           selected:false}]}],
     minimumScore:16,
     type:"OPTIONAL"}
-
   expect(criteriaCompletable(criteria)).toBeTruthy()
-
 })
 
 it('optional criteria credits isnt completable ', () => {

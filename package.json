@@ -10,6 +10,7 @@
     "fuzzy-search": "^2.1.0",
     "react": "^16.2.0",
     "react-bootstrap": "^0.31.5",
+    "react-bootstrap-toggle": "^2.3.1",
     "react-debounce-input": "^3.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
@@ -29,6 +30,5 @@
     "test": "react-scripts test --env=jsdom --coverage --watch",
     "test_debug": "node --inspect --inspect-brk ./node_modules/.bin/jest --runInBand -watch",
     "eject": "react-scripts eject"
-  },
-  "proxy": "http://127.0.0.1:6543"
+  }
 }

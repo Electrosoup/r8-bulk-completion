@@ -20,6 +20,8 @@ const mapStateToProps = (state, _ownProps) => ({
   showDialog: state.defaultReducer.showDialog,
   visibleCandidates: state.defaultReducer.visibleCandidates,
   term: state.defaultReducer.term,
+  reports: state.defaultReducer.reports,
+  isUnitCertificate: state.defaultReducer.isUnitCertificate,
   selectedUnitTitles: Object.entries(
     state.defaultReducer.unitsSelected)
     .filter(item => item[1] === true)
@@ -27,6 +29,9 @@ const mapStateToProps = (state, _ownProps) => ({
       id: state.defaultReducer.units[unit[0]].id, 
       title: state.defaultReducer.units[unit[0]].title })),
   selectedUnits: state.defaultReducer.unitsSelected,
+  someUnitsSelected: Object.entries(
+    state.defaultReducer.unitsSelected)
+    .filter(item => item[1] === true).length > 0,
   selectedCandidates: Object.entries(
     state.defaultReducer.candidatesSelected)
     .filter(item => item[1] === true)

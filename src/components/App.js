@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { faSun, faCheck, faSort } from '@fortawesome/free-solid-svg-icons'
+import Toggle from 'react-bootstrap-toggle'
+
+const REPORT_URL='http://127.0.0.1:6543/qualification/bulk_complete_report'
 
 library.add(fab, faSun, faCheck, faSort)
 
@@ -21,37 +24,18 @@ class App extends React.Component {
     Object.keys(this.props.qualification).length
       ?
       <div>
+      <br/>
       <bs.Grid>
-        <bs.Row>
-          <QualDropdown
-              qualifications={this.props.qualifications}
-              onChange={this.props.selectQualification} />
-        </bs.Row>
-        <br/>
-        <bs.Row>
-          <bs.Col xs={6} md={4}>
-          <DebounceInput
-            className="form-control"
-            placeholder="search candidates"
-            minLength={2}
-            debounceTimeout={300}
-            onChange={event =>  this.props.searchCandidates(event.target.value)} />
+      <bs.Tabs defaultActiveKey={1} id="uncontrolled-bs.tab-example">
+        <bs.Tab eventKey={1} title="Bulk complete">
           <br/>
-          <Candidates {...this.props}/>
-          </bs.Col>
-          <bs.Col xs={12} md={8}>
-          <bs.Button
-            disabled={
-              !(this.props.qualificationIsCompletable
-                && this.props.someCandidatesSelected)}
-            onClick={_e => this.props.toggleDialog()} >
-            Bulk Complete
-          </bs.Button>
-          <br/>
-          <br/>
-          <Criterias {...this.props} />
-          </bs.Col>
-        </bs.Row>
+          <BulkComplete {...this.props} />
+        </bs.Tab>
+        <bs.Tab eventKey={2} title="Previous bulk completes">
+          <br />
+          <BulkUploadReport {...this.props}/>
+        </bs.Tab>
+      </bs.Tabs>
       </bs.Grid>
       <ModalComplete {...this.props} />
       </div>
@@ -63,10 +47,68 @@ class App extends React.Component {
           <FontAwesomeIcon icon="check" size="lg" color="green"/>{' '}All qualifications have been completed for candidates.</strong>
         </center>
       </bs.Alert>
-      </bs.Col>
-              
-  )}
-}
+      </bs.Col>)
+    }
+  }
+
+export const BulkComplete = (props) =>
+        <div>
+        <bs.Row>
+          <QualDropdown
+              qualifications={props.qualifications}
+              onChange={props.selectQualification} />
+        </bs.Row>
+        <br/>
+        <bs.Row>
+          <bs.Col xs={6} md={4}>
+          <DebounceInput
+            className="form-control"
+            placeholder="search candidates"
+            minLength={2}
+            debounceTimeout={300}
+            onChange={event =>  props.searchCandidates(event.target.value)} />
+          <br/>
+          <Candidates {...props}/>
+          </bs.Col>
+          <bs.Col xs={12} md={8}>
+          <bs.Col xa={12} md={6}>
+          <bs.Button
+            bsStyle={
+              (props.qualificationIsCompletable || props.isUnitCertificate)
+                && props.someCandidatesSelected
+                && props.someUnitsSelected
+            ?
+            'primary'
+            :
+            undefined
+            }
+            disabled={
+              !((props.qualificationIsCompletable || props.isUnitCertificate)
+                && props.someCandidatesSelected
+                && props.someUnitsSelected)}
+            onClick={_e => props.toggleDialog()} >
+            Bulk Complete
+          </bs.Button>
+          </bs.Col>
+          <bs.Col xa={12} md={6}>
+          <div style={{'textAlign': 'right'}}>
+          <span>Complete as Unit Certificate? </span>
+          <Toggle
+            onClick={_ => props.toggleUnitCertificate() }
+            on={<div>Yes</div>}
+            off={<div>No</div>}
+            offstyle="success"
+            onstyle="warning"
+            active={props.isUnitCertificate}
+          />
+          </div>
+          </bs.Col>
+          <br/>
+          <br/>
+          <Criterias {...props} />
+          </bs.Col>
+        </bs.Row>
+        </div>
 
 const filterVisibleCandidates = (candidates, visibleCandidates, term) => 
   Object.keys(visibleCandidates).length
@@ -145,7 +187,11 @@ export const Candidates = (props) =>
   <h5 className='no-candidates' >No Candidates</h5>}
   </div>
 
-const typeOfBadge = (option) =>
+const typeOfBadge = (option, isUnitCertificate) =>
+  isUnitCertificate 
+  ?
+  <bs.Label bsStyle="warning">-</bs.Label>
+  :
   option === 'MANDATORY'
   ? 
   <bs.Label bsStyle="danger">M</bs.Label>
@@ -157,17 +203,21 @@ export const Criterias = (props) =>
     {props.criteria.map(criteria => 
       <bs.Panel
         key={criteria.id.toString()}
-        bsStyle={criteria.completable
+        bsStyle={props.isUnitCertificate ? 'warning' : criteria.completable
         ?
         'success'
         : 
         undefined}
-        header={criteria.text}>
+        header={props.isUnitCertificate
+          ? 'Unit certificate, no criteria needed' 
+          : criteria.text}>
       {criteria.groups.map(group => 
       <div key={`${group.qualId}-${criteria.id}`}>
-      {criteria.type === 'MANDATORY'
+      {props.isUnitCertificate
         ? null 
-        : <h5>Minimum Score: {criteria.minimumScore}</h5>}
+        : criteria.type === 'MANDATORY'
+          ? null  
+          : <h5>Minimum Score: {criteria.minimumScore}</h5>}
       <bs.Table striped bordered condensed hover>
         <thead>
         <tr>
@@ -193,7 +243,7 @@ export const Criterias = (props) =>
                 onChange={_e => {props.toggleUnit(unit.id)}}
               />
             </td>
-            <td style={{ width: '10px' }}>{typeOfBadge(criteria.type)}</td>
+            <td style={{ width: '10px' }}>{typeOfBadge(criteria.type, props.isUnitCertificate)}</td>
             <td style={{ width: '100px' }}>{unit.id}</td>
             <td style={{ width: '350px' }}>{unit.title}</td>
             {criteria.type !== 'MANDATORY' && criteria.criteria === 'COMPLETE_ON_CREDITS' 
@@ -247,6 +297,29 @@ export const ModalComplete = (props) => {
         </bs.Button>
       </bs.ModalFooter>
   </bs.Modal>)}
+
+const BulkUploadReport = (props) =>
+  <bs.Table striped bordered condensed hover>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Qualification</th>
+        <th>Number processed</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {props.reports.map(item => 
+        <tr key={item.id}>
+        <td>{item.user}</td>
+        <td>{item.qualification}</td>
+        <td>{item.courses}</td>
+        <td>{new Date(item.date).toLocaleString('en-gb')}</td>
+        <td><bs.Button href={`${REPORT_URL}?id=${item.id}`} bsSize="xsmall">download</bs.Button></td>
+        </tr>)}
+    </tbody>
+  </bs.Table>
 
     
 App.propTypes = {

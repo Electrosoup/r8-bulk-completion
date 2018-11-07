@@ -20,9 +20,11 @@ const initialData = {
   allCandidatesSelected: false,
   showDialog: false,
   bulkCompleteProcessing: false,
+  isUnitCertificate: false,
   visibleCandidates:{},
   term: '',
   toggleSortSurnames: false,
+  reports: []
 }
 
 export default (state = initialData, action) => {
@@ -72,6 +74,12 @@ export default (state = initialData, action) => {
         return {
           ...state,
           toggleSortSurnames: !state.toggleSortSurnames,
+        }
+
+    case types.TOGGLE_UNIT_CERTIFICATE:
+        return {
+          ...state,
+          isUnitCertificate: !state.isUnitCertificate,
         }
 
     case types.BULK_COMPLETE_PROCESSING:

@@ -42,6 +42,10 @@ export const toggleSortSurnames = () => ({
   type: types.TOGGLE_SORT_SURNAMES
 })
 
+export const toggleUnitCertificate = () => ({
+  type: types.TOGGLE_UNIT_CERTIFICATE
+})
+
 export const bulkComplete = (props) => 
   dispatch => {
     fetch(
@@ -54,6 +58,7 @@ export const bulkComplete = (props) =>
       credentials: 'same-origin',
       method: 'post',
       body: JSON.stringify({
+        isUnitCertificate: props.isUnitCertificate,
         candidates: Object.entries(props.selectedCandidates).map(item => item[1].id),
         units: Object.keys(props.selectedUnits),
         qualification: props.qualification.id,
