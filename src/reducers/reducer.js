@@ -190,7 +190,7 @@ export const getCriteria = (state) => {
         {
           ...criteria
         }))
-      .sort((a, b) => a.type > b.type)
+      .sort((a, b) => (a.type > b.type) ? 1 : (b.type > a.type) ? -1 : 0)
     return criteria.map(
       item => ({...item, completable: criteriaCompletable(item)}))
     }

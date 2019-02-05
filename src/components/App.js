@@ -9,7 +9,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons'
 import { faSun, faCheck, faSort } from '@fortawesome/free-solid-svg-icons'
 import Toggle from 'react-bootstrap-toggle'
 
-const REPORT_URL='http://127.0.0.1:6543/qualification/bulk_complete_report'
+const REPORT_URL='/qualification/bulk_complete_report'
 
 library.add(fab, faSun, faCheck, faSort)
 
@@ -270,7 +270,7 @@ export const ModalComplete = (props) => {
       <bs.ModalBody>
       <h5>Units to complete:</h5>
       <ul>
-        {props.selectedUnitTitles.map(item => <li key={item.id}>{item.title}</li>)}
+        {props.selectedUnitTitles.map(item => <li key={item.id}>{item.id} - {item.title}</li>)}
       </ul>
       <h5>Candidates to complete</h5>
       <ul>
