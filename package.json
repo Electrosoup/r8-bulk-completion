@@ -2,6 +2,7 @@
   "name": "r8-course-edit",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:6543/",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.6",
     "@fortawesome/free-brands-svg-icons": "^5.4.1",
